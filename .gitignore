@@ -1,1 +1,12 @@
 *.pyc
+*_pb2.py
+*.exe
+*.db
+*.tmp
+*.swp
+*.o
+*.so
+*.pb.cc
+*.pb.h
+*~
+.idea
