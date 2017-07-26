@@ -3,7 +3,8 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
-from UPJP.signature.generator import Gen
+from signature.generator import Gen
+from signature.detector import Detector
 
 
 class Main(QMainWindow):
@@ -52,17 +53,17 @@ class Main(QMainWindow):
         self.filelist.setWindowTitle('Example List')
         self.filelist.setSelectionMode(QAbstractItemView.MultiSelection)
 
-        btn1 = QPushButton("추가", self)
-        btn2 = QPushButton("삭제", self)
-        btn3 = QPushButton("검사", self)
+        addBtn = QPushButton("추가", self)
+        deleteBtn = QPushButton("삭제", self)
+        checkBtn = QPushButton("검사", self)
 
-        btn1.clicked.connect(self.openFileDialog)
-        btn2.clicked.connect(self.subBtnClicked)
-        btn3.clicked.connect(self.chkBtnClicked)
+        addBtn.clicked.connect(self.openFileDialog)
+        deleteBtn.clicked.connect(self.deleteBtnClicked)
+        checkBtn.clicked.connect(self.chkBtnClicked)
 
         layout_tab1.addRow(self.filelist)
-        layout_tab1.addRow(btn1, btn2)
-        layout_tab1.addRow(btn3)
+        layout_tab1.addRow(addBtn, deleteBtn)
+        layout_tab1.addRow(checkBtn)
 
         self.tab1.setLayout(layout_tab1)
 
@@ -77,24 +78,20 @@ class Main(QMainWindow):
         items, _ = QFileDialog.getOpenFileNames(self, "Select file", "~/",
                                                 "All Files (*);;Python Files (*.py)", options=options)
         for item in items:
-            print(item)
+            print("* add file :", item)
             self.filelist.addItem(item)
 
-    def subBtnClicked(self):
+    def deleteBtnClicked(self):
         items = self.filelist.selectedItems()
         for item in items:
             self.filelist.removeItemWidget(item)
             self.filelist.takeItem(self.filelist.row(item))
 
     def chkBtnClicked(self):
-
-        for index in range(self.filelist.count()):
-            print(self.filelist.item(index).text())
+        items = self.filelist.selectedItems()
+        for item in items:
+            target = item.text()
+            print("\n검사하려는 파일 :", target)
+            Detector.ruleMatchFile(target)
 
         self.filelist.clearSelection()
-
-    def buttonClicked(self):
-        # sender = self.sender()
-        # self.statusBar().showMessage(sender.text() + ' was pressed')
-        raise NotImplementedError
-

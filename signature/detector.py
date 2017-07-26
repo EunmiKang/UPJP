@@ -1,9 +1,23 @@
-import os
+import yara
 
 class Detector(object):
 
-    def detect(self):
-        return
+    def ruleMatchFile(targetFilePath):
+        rule_path = r"C:\Users\user\Git\UPJP\ruleFile_dir\yara_rule.yar"  #rule file path 입력
+
+        try:
+            tFile = open(targetFilePath, "rb")
+            fileData = tFile.read()
+            print("file data :", fileData)
+
+            compiledRules = yara.compile(filepath=rule_path)    #rule 파일 compile
+            rule_match_result = compiledRules.match(data=fileData)
+
+        except Exception as e:
+            print(e)
+            return
+
+        print("결과 :", rule_match_result)
 
 def main(_):
     return

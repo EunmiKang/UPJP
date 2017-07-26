@@ -5,7 +5,7 @@ import logging
 
 from PyQt5.QtWidgets import QApplication
 
-from UPJP.gui.client_ui import *
+from gui.client_ui import *
 
 # def main():
 #     print("\n[+] Kali-KM's GenCreater. kali-km.tistory.com")
