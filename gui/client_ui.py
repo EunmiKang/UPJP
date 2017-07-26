@@ -20,7 +20,7 @@ class Main(QMainWindow):
 
         self.setCentralWidget(self.table_widget)
 
-        self.setGeometry(300, 300, 600, 400)
+        self.setGeometry(300, 300, 500, 300)
         self.setWindowTitle('UPJP')
         # self.setWindowIcon(QIcon('1.png'))
         self.statusBar()
@@ -48,22 +48,30 @@ class Main(QMainWindow):
 
     def tab1ui(self):
         layout_tab1 = QFormLayout()
+        layout_btn = QFormLayout()
 
         self.filelist = QListWidget()
         self.filelist.setWindowTitle('Example List')
         self.filelist.setSelectionMode(QAbstractItemView.MultiSelection)
 
+        self.filelist.setFixedSize(500, 300)
+
         addBtn = QPushButton("추가", self)
         deleteBtn = QPushButton("삭제", self)
         checkBtn = QPushButton("검사", self)
+
+        addBtn.setFixedSize(100, 30)
+        deleteBtn.setFixedSize(100, 30)
+        checkBtn.setFixedSize(100, 30)
 
         addBtn.clicked.connect(self.openFileDialog)
         deleteBtn.clicked.connect(self.deleteBtnClicked)
         checkBtn.clicked.connect(self.chkBtnClicked)
 
-        layout_tab1.addRow(self.filelist)
-        layout_tab1.addRow(addBtn, deleteBtn)
-        layout_tab1.addRow(checkBtn)
+        layout_btn.addRow(addBtn)
+        layout_btn.addRow(deleteBtn)
+        layout_btn.addRow(checkBtn)
+        layout_tab1.addRow(self.filelist, layout_btn)
 
         self.tab1.setLayout(layout_tab1)
 
