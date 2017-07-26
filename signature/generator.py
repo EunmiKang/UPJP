@@ -1,4 +1,4 @@
-import optparse
+import argparse
 import os
 import sys
 
@@ -40,7 +40,7 @@ class Extractor(object):
           A list of extracted signatures (as strings).
         """
         print("[+] Get Strings...")
-        command = 'string.exe -n 3 ' + path
+        command = 'strings.exe -n 3 ' + path
         bufs = os.popen(command).read()
         buf_arr = bufs.split('\n')
         buf_arr = list(set(buf_arr))
@@ -59,32 +59,35 @@ class Extractor(object):
           A list of extracted paths (as strings).
         """
         files = getFileList(path)
+        print(files)
         print("[+] Get Strings...")
         for file in files:
             command = 'strings.exe -n 3 ' + file + '>>' + db
             os.system(command)
+            
+        self.DB_Update()
 
     def extractMalPattern(self, path, db):
 
         print("[+] Get Strings...")
-        command = 'string.exe -n 3 ' + path
-        bufs = os.popen(command).read()
+        command = 'strings.exe -n 3 ' + path
+        bufs = os.popen(command, 'r').read()
         buf_arr = bufs.split('\n')
         buf_arr = list(set(buf_arr))
 
-        with open(db, 'r') as f:
+        with open(db, 'rb') as f:
             while True:
                 data = f.read(0x2000000)
                 if not data: break
-                read_arr = data.split('\n')
+                read_arr = data.split(b'\n')
 
                 for text in read_arr:
                     try:
                         buf_arr.remove(text)
                     except ValueError:
                         pass
-                        # ë°˜í™˜ë˜ëŠ” ê²°ê³¼ê°€ \xffì™€ ê°™ì€ í˜•íƒœì¼ ìˆ˜ë„ ìˆìœ¼ë©°, Unicodeì¼ ìˆ˜ë„ ìˆìŒ
-                        # ë”°ë¼ì„œ Rule ìƒì„± ì‹œ ì´ì— ëŒ€í•˜ì—¬ ì‹ ê²½ì¨ì•¼í•¨
+                        # ¹İÈ¯µÇ´Â °á°ú°¡ \xff¿Í °°Àº ÇüÅÂÀÏ ¼öµµ ÀÖÀ¸¸ç, UnicodeÀÏ ¼öµµ ÀÖÀ½
+                        # µû¶ó¼­ Rule »ı¼º ½Ã ÀÌ¿¡ ´ëÇÏ¿© ½Å°æ½á¾ßÇÔ
         print("[+} Result")
         print(buf_arr)
         return buf_arr
@@ -93,6 +96,26 @@ class Extractor(object):
 
         raise NotImplementedError()
 
+    def DB_Update(self):
+        
+        offset=0
+        o = open('GenDB.tmp', 'wb')
+        while True:
+            with open('GenDB.db', 'rb') as f:
+                f.seek(offset)
+                buf = f.read(0x2000000)
+                print(buf)
+            if not len(buf): break
+
+            arr = buf.split(b'\n')
+            arr = list(set(arr))
+
+            for i in arr: o.write(i + b'\n')
+            offset += len(buf)
+        
+        o.close()
+        os.remove('GenDB.db')
+        os.rename("GenDB.tmp", "GenDB.db")
 
 def getFileList(path):
     res = []
@@ -103,27 +126,27 @@ def getFileList(path):
             res.append(filepath)
     return res
 
-    # def DB_Update(self):
-    #     offset = 0
-    #     o = open('GenDB.tmp', 'wb')
-    #     while True:
-    #         with open('GenDB.db', 'rb') as f:
-    #             f.seek(offset)
-    #             buf = f.read(0x2000000)
-    #         if not len(buf): break
-    #
-    #         arr = buf.split('\n')
-    #         arr = list(set(arr))
-    #
-    #         for i in arr: o.write(str(i) + '\n')
-    #         offset += len(buf)
-    #     o.close()
-    #     os.remove('GenDB.db')
-    #     os.rename("GenDB.tmp", "GenDB.db")
+def main():
+    print("\n[+] Kali-KM's GenCreater. kali-km.tistory.com")
+    usage = "[+] Usage : Python %Prog [-d DirPath] or [-c CompareFile] or [-u]"
+    parser = argparse.ArgumentParser(usage=usage)
+    parser.add_argument('-d', '--dirpath', help='specifies a directory where the files')
+    parser.add_argument('-c', '--compare', help='specify a compare file')
+    args = parser.parse_args()
+    if (not args.dirpath and not args.compare) or (args.dirpath and args.compare):
+        print(parser.usage)
+        sys.exit(0)
 
-def main(_):
+    gen = Gen()
+    if args.dirpath:
+        gen.addWhiteList(args.dirpath)
+        sys.exit(0)
+
+    elif args.compare:
+        gen.compareFile(args.compare)
+        sys.exit(0)
+
     return
 
 if __name__ == "__main__":
     main()
-  # flags.StartMain(main)
