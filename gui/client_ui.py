@@ -3,11 +3,20 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
+import tkinter
+from tkinter import messagebox
+
 from signature.generator import Gen
 from signature.detector import Detector
 
 
 class Main(QMainWindow):
+
+    #hide main window (alert window)
+    root = tkinter.Tk()
+    root.withdraw()
+
+    result_massage = "악성코드로 의심되는 파일 목록\n\n"
 
     def __init__(self):
         super().__init__()
@@ -100,6 +109,7 @@ class Main(QMainWindow):
         for item in items:
             target = item.text()
             print("\n검사하려는 파일 :", target)
-            Detector.ruleMatchFile(target)
+            self.result_massage += Detector.ruleMatchFile(target)
 
+        messagebox.showwarning("Warning!", self.result_massage)
         self.filelist.clearSelection()
