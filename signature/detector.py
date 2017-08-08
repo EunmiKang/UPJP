@@ -3,7 +3,8 @@ import yara
 class Detector(object):
 
     def ruleMatchFile(targetFilePath):
-        rule_path = r"C:\Users\user\Git\UPJP\ruleFile_dir\yara_rule.yar"  #rule file path 입력
+
+        rule_path = r".\ruleFile_dir\yara_rule.yar"  #rule file path 입력
         result_message = ""
 
         try:

@@ -1,14 +1,11 @@
 
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
 
 import tkinter
 from tkinter import messagebox
+from PyQt5.QtWidgets import *
 
-from signature.generator import Gen
+from signature.generator import *
 from signature.detector import Detector
-
 
 class Main(QMainWindow):
 
@@ -22,7 +19,6 @@ class Main(QMainWindow):
         super().__init__()
 
         self._init_ui()
-        self.gen = Gen()
 
     def _init_ui(self):
         self._init_widget()
@@ -31,7 +27,6 @@ class Main(QMainWindow):
 
         self.setGeometry(300, 300, 500, 300)
         self.setWindowTitle('UPJP')
-        # self.setWindowIcon(QIcon('1.png'))
         self.statusBar()
         self.show()
 
@@ -52,18 +47,18 @@ class Main(QMainWindow):
         self.tab1ui()
         self.tab2ui()
 
-        self.tabs.addTab(self.tab1, "호오오오오오오오오오옴")
+        self.tabs.addTab(self.tab1, "홈")
         self.tabs.addTab(self.tab2, "환경설정")
 
     def tab1ui(self):
         layout_tab1 = QFormLayout()
         layout_btn = QFormLayout()
 
-        self.filelist = QListWidget()
-        self.filelist.setWindowTitle('Example List')
-        self.filelist.setSelectionMode(QAbstractItemView.MultiSelection)
+        filelist = QListWidget()
+        filelist.setWindowTitle('Example List')
+        filelist.setSelectionMode(QAbstractItemView.MultiSelection)
 
-        self.filelist.setFixedSize(500, 300)
+        filelist.setFixedSize(500, 300)
 
         addBtn = QPushButton("추가", self)
         deleteBtn = QPushButton("삭제", self)
@@ -73,43 +68,83 @@ class Main(QMainWindow):
         deleteBtn.setFixedSize(100, 30)
         checkBtn.setFixedSize(100, 30)
 
-        addBtn.clicked.connect(self.openFileDialog)
-        deleteBtn.clicked.connect(self.deleteBtnClicked)
-        checkBtn.clicked.connect(self.chkBtnClicked)
+        addBtn.clicked.connect(lambda: self.addBtnClicked(filelist))
+        deleteBtn.clicked.connect(lambda: self.deleteBtnClicked(filelist))
+        checkBtn.clicked.connect(lambda: self.chkBtnClicked(filelist))
 
         layout_btn.addRow(addBtn)
         layout_btn.addRow(deleteBtn)
         layout_btn.addRow(checkBtn)
-        layout_tab1.addRow(self.filelist, layout_btn)
+        layout_tab1.addRow(filelist, layout_btn)
 
         self.tab1.setLayout(layout_tab1)
 
     def tab2ui(self):
-        layout = QFormLayout()
+        layout_tab2 = QFormLayout()
+        layout_btn = QFormLayout()
 
-        self.tab2.setLayout(layout)
+        filedir = QTextEdit()
+        filedir.setReadOnly(True)
 
-    def openFileDialog(self):
+        filedir.setFixedSize(500, 30)
+
+        filelist = QListWidget()
+        filelist.setWindowTitle('Example List')
+        filelist.setSelectionMode(QAbstractItemView.MultiSelection)
+
+        filelist.setFixedSize(500, 280)
+
+        addBtn = QPushButton("추가", self)
+        addToWhiteBtn = QPushButton("생성", self)
+
+        addBtn.setFixedSize(100, 30)
+        addToWhiteBtn.setFixedSize(100, 30)
+
+        addBtn.clicked.connect(lambda: self.addWithDirectoryBtnClicked(filedir, filelist))
+        addToWhiteBtn.clicked.connect(lambda: self.createWhiteBtnClicked(filedir))
+
+        layout_btn.addRow(addToWhiteBtn)
+        layout_tab2.addRow(filedir, addBtn)
+        layout_tab2.addRow(filelist, layout_btn)
+
+        self.tab2.setLayout(layout_tab2)
+
+    def addBtnClicked(self, filelist):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         items, _ = QFileDialog.getOpenFileNames(self, "Select file", "~/",
                                                 "All Files (*);;Python Files (*.py)", options=options)
         for item in items:
             print("* add file :", item)
-            self.filelist.addItem(item)
+            filelist.addItem(item)
 
-    def deleteBtnClicked(self):
-        items = self.filelist.selectedItems()
+    def deleteBtnClicked(self, filelist):
+        items = filelist.selectedItems()
         for item in items:
-            self.filelist.removeItemWidget(item)
-            self.filelist.takeItem(self.filelist.row(item))
+            filelist.removeItemWidget(item)
+            filelist.takeItem(filelist.row(item))
 
-    def chkBtnClicked(self):
-        items = self.filelist.selectedItems()
+    def chkBtnClicked(self, filelist):
+        items = filelist.selectedItems()
         for item in items:
             target = item.text()
             print("\n검사하려는 파일 :", target)
             self.result_massage += Detector.ruleMatchFile(target)
 
         messagebox.showwarning("Warning!", self.result_massage)
-        self.filelist.clearSelection()
+        filelist.clearSelection()
+
+    def addWithDirectoryBtnClicked(self, filedir, filelist):
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        dir = QFileDialog.getExistingDirectory(self, "Select Directory", options=options)
+
+        filedir.setText(dir)
+        filelist.clear()
+        filelist.addItems(getFileList(dir))
+
+
+    def createWhiteBtnClicked(self, filedir):
+
+        Generater.extractStringsWithDB(Generater(), filedir.toPlainText())
+
