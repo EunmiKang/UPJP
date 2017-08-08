@@ -2,39 +2,13 @@ import argparse
 import os
 import sys
 
-
-class Gen(object):
-
-    def __init__(self):
-        self.extractor = Extractor()
-
-    def addWhiteList(self, path, db='GenDB.db'):
-        # insert db
-        self.extractor.extractStringsWithDB(path, db)
-
-    def compareFile(self, path, db='GenDB.db'):
-
-        buf_arr = self.extractor.extractMalPattern(path, db)
-
-        return buf_arr
-
-    def CreateYara(self):
-
-        raise NotImplementedError
-
-
-class Extractor(object):
-    """Base class for signature extractors."""
-
-    def __init__(self, path=None):
-        # self.path = path or []
-        return
+class Generater(object):
 
     def extractStrings(self, path):
-        """Extracts interesting signatures from a given file.
+        """Extracts interesting signatures from a given path.
         
         Args:
-          path: 
+          path: target directory or files
         
         Returns:
           A list of extracted signatures (as strings).
@@ -49,14 +23,17 @@ class Extractor(object):
         print(buf_arr)
         return buf_arr
 
-    def extractStringsWithDB(self, path, db):
-        """Extracts interesting paths from a given path And Inserts to db.
-        
+    def extractStringsWithDB(self, path, db='GenDB.db'):
+        """Extracts interesting signatures from a given path and Inserts to db.
+
+        This method extracts string from files in path and Store at local database
+
         Args:
-          path: 
+          path: target directory or files
+          db: A path of database
         
         Returns:
-          A list of extracted paths (as strings).
+          None
         """
         files = getFileList(path)
         print(files)
@@ -67,8 +44,18 @@ class Extractor(object):
             
         self.DB_Update()
 
-    def extractMalPattern(self, path, db):
+    def extractMalPattern(self, path, db='GenDB.db'):
+        """Extracts interesting signatures from a given path.
 
+         This method extracts string from file in path and compare with whilelist database
+
+        Args:
+            path: target file
+            db: A path of database
+
+        Returns:
+             A list of extracted signatures (as strings).
+        """
         print("[+] Get Strings...")
         command = 'strings.exe -n 3 ' + path
         bufs = os.popen(command, 'r').read()
@@ -86,18 +73,15 @@ class Extractor(object):
                         buf_arr.remove(text)
                     except ValueError:
                         pass
-                        # 반환되는 결과가 \xff와 같은 형태일 수도 있으며, Unicode일 수도 있음
-                        # 따라서 Rule 생성 시 이에 대하여 신경써야함
+
         print("[+} Result")
         print(buf_arr)
         return buf_arr
 
-    def extract_(self, path):
-
-        raise NotImplementedError()
-
     def DB_Update(self):
-        
+        """Removing redundency from a whitelist database
+
+        """
         offset=0
         o = open('GenDB.tmp', 'wb')
         while True:
@@ -116,6 +100,7 @@ class Extractor(object):
         o.close()
         os.remove('GenDB.db')
         os.rename("GenDB.tmp", "GenDB.db")
+
 
 def getFileList(path):
     res = []
@@ -137,7 +122,7 @@ def main():
         print(parser.usage)
         sys.exit(0)
 
-    gen = Gen()
+    gen = Generater()
     if args.dirpath:
         gen.addWhiteList(args.dirpath)
         sys.exit(0)
