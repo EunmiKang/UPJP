@@ -43,15 +43,18 @@ class Main(QMainWindow):
         self.tabs = QTabWidget()
         self.tab1 = QWidget()
         self.tab2 = QWidget()
+        self.tab3 = QWidget()
 
         self.tab1ui()
         self.tab2ui()
+        self.tab3ui()
 
-        self.tabs.addTab(self.tab1, "홈")
-        self.tabs.addTab(self.tab2, "환경설정")
+        self.tabs.addTab(self.tab1, "스캔")
+        self.tabs.addTab(self.tab2, "DB생성")
+        self.tabs.addTab(self.tab3, "패턴추출")
 
     def tab1ui(self):
-        layout_tab1 = QFormLayout()
+        layout_tab = QFormLayout()
         layout_btn = QFormLayout()
 
         filelist = QListWidget()
@@ -75,12 +78,12 @@ class Main(QMainWindow):
         layout_btn.addRow(addBtn)
         layout_btn.addRow(deleteBtn)
         layout_btn.addRow(checkBtn)
-        layout_tab1.addRow(filelist, layout_btn)
+        layout_tab.addRow(filelist, layout_btn)
 
-        self.tab1.setLayout(layout_tab1)
+        self.tab1.setLayout(layout_tab)
 
     def tab2ui(self):
-        layout_tab2 = QFormLayout()
+        layout_tab = QFormLayout()
         layout_btn = QFormLayout()
 
         filedir = QTextEdit()
@@ -104,10 +107,40 @@ class Main(QMainWindow):
         addToWhiteBtn.clicked.connect(lambda: self.createWhiteBtnClicked(filedir))
 
         layout_btn.addRow(addToWhiteBtn)
-        layout_tab2.addRow(filedir, addBtn)
-        layout_tab2.addRow(filelist, layout_btn)
+        layout_tab.addRow(filedir, addBtn)
+        layout_tab.addRow(filelist, layout_btn)
 
-        self.tab2.setLayout(layout_tab2)
+        self.tab2.setLayout(layout_tab)
+
+    def tab3ui(self):
+        layout_tab = QFormLayout()
+        layout_btn = QFormLayout()
+
+        file = QTextEdit()
+        # filedir.setReadOnly(True)
+
+        file.setFixedSize(500, 30)
+
+        signaturelist = QListWidget()
+        signaturelist.setWindowTitle('Example List')
+        signaturelist.setSelectionMode(QAbstractItemView.MultiSelection)
+
+        signaturelist.setFixedSize(500, 280)
+
+        addBtn = QPushButton("추가", self)
+        extractBtn = QPushButton("추출", self)
+
+        addBtn.setFixedSize(100, 30)
+        extractBtn.setFixedSize(100, 30)
+
+        addBtn.clicked.connect(lambda: self.addFileBtnClicked(file))
+        extractBtn.clicked.connect(lambda: self.extractBtnClicked(file, signaturelist))
+
+        layout_btn.addRow(extractBtn)
+        layout_tab.addRow(file, addBtn)
+        layout_tab.addRow(signaturelist, layout_btn)
+
+        self.tab3.setLayout(layout_tab)
 
     def addBtnClicked(self, filelist):
         options = QFileDialog.Options()
@@ -143,8 +176,19 @@ class Main(QMainWindow):
         filelist.clear()
         filelist.addItems(getFileList(dir))
 
+    def addFileBtnClicked(self, filedir):
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        file, _ = QFileDialog.getOpenFileName(self, "Select file", "~/",
+                                                "All Files (*);;Python Files (*.py)", options=options)
+
+        filedir.setText(file)
 
     def createWhiteBtnClicked(self, filedir):
 
         Generater.extractStringsWithDB(Generater(), filedir.toPlainText())
+
+    def extractBtnClicked(self, filedir, signaturelist):
+
+        signaturelist.addItems(Generater.extractMalPattern(Generater(), filedir.toPlainText()))
 
