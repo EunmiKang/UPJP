@@ -164,7 +164,9 @@ class Main(QMainWindow):
             print("\n검사하려는 파일 :", target)
             self.result_massage += Detector.ruleMatchFile(target)
 
+        # 악성코드로 의심되는 파일 목록 띄움
         messagebox.showwarning("Warning!", self.result_massage)
+
         filelist.clearSelection()
 
     def addWithDirectoryBtnClicked(self, filedir, filelist):

@@ -2,6 +2,10 @@ import yara
 
 class Detector(object):
 
+    """
+    악성코드 여부를 검사하려는 파일과
+    정의해놓은 yara rule을 matching 시킨 결과 return
+    """
     def ruleMatchFile(targetFilePath):
 
         rule_path = r".\ruleFile_dir\yara_rule.yar"  #rule file path 입력
