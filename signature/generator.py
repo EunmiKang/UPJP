@@ -56,11 +56,15 @@ class Generater(object):
         Returns:
              A list of extracted signatures (as strings).
         """
+        files = getFileList(path)
+        print(files)
         print("[+] Get Strings...")
-        command = 'strings.exe -n 3 ' + path
-        bufs = os.popen(command, 'r').read()
-        buf_arr = bufs.split('\n')
-        buf_arr = list(set(buf_arr))
+        for file in files:
+            command = 'strings.exe -n 3 ' + file
+            bufs = os.popen(command, 'r').read()
+            buf_arr = bufs.split(b'\n')
+            buf_arr = list(set(buf_arr))
+
 
         with open(db, 'rb') as f:
             while True:

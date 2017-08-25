@@ -13,8 +13,6 @@ class Main(QMainWindow):
     root = tkinter.Tk()
     root.withdraw()
 
-    result_massage = "악성코드로 의심되는 파일 목록\n\n"
-
     def __init__(self):
         super().__init__()
 
@@ -116,16 +114,16 @@ class Main(QMainWindow):
         layout_tab = QFormLayout()
         layout_btn = QFormLayout()
 
-        file = QTextEdit()
-        # filedir.setReadOnly(True)
+        filedir = QTextEdit()
+        filedir.setReadOnly(True)
 
-        file.setFixedSize(500, 30)
+        filedir.setFixedSize(500, 30)
 
-        signaturelist = QListWidget()
-        signaturelist.setWindowTitle('Example List')
-        signaturelist.setSelectionMode(QAbstractItemView.MultiSelection)
+        filelist = QListWidget()
+        filelist.setWindowTitle('Example List')
+        filelist.setSelectionMode(QAbstractItemView.MultiSelection)
 
-        signaturelist.setFixedSize(500, 280)
+        filelist.setFixedSize(500, 280)
 
         addBtn = QPushButton("추가", self)
         extractBtn = QPushButton("추출", self)
@@ -133,12 +131,12 @@ class Main(QMainWindow):
         addBtn.setFixedSize(100, 30)
         extractBtn.setFixedSize(100, 30)
 
-        addBtn.clicked.connect(lambda: self.addFileBtnClicked(file))
-        extractBtn.clicked.connect(lambda: self.extractBtnClicked(file, signaturelist))
+        addBtn.clicked.connect(lambda: self.addWithDirectoryBtnClicked(filedir, filelist))
+        extractBtn.clicked.connect(lambda: self.extractBtnClicked(filedir))
 
         layout_btn.addRow(extractBtn)
-        layout_tab.addRow(file, addBtn)
-        layout_tab.addRow(signaturelist, layout_btn)
+        layout_tab.addRow(filedir, addBtn)
+        layout_tab.addRow(filelist, layout_btn)
 
         self.tab3.setLayout(layout_tab)
 
@@ -159,13 +157,14 @@ class Main(QMainWindow):
 
     def chkBtnClicked(self, filelist):
         items = filelist.selectedItems()
+        result_massage = "악성코드로 의심되는 파일 목록\n\n"
         for item in items:
             target = item.text()
             print("\n검사하려는 파일 :", target)
-            self.result_massage += Detector.ruleMatchFile(target)
+            result_massage += Detector.ruleMatchFile(target)
 
         # 악성코드로 의심되는 파일 목록 띄움
-        messagebox.showwarning("Warning!", self.result_massage)
+        messagebox.showwarning("Warning!", result_massage)
 
         filelist.clearSelection()
 
@@ -187,10 +186,14 @@ class Main(QMainWindow):
         filedir.setText(file)
 
     def createWhiteBtnClicked(self, filedir):
-
+        result_massage = "패턴추출 완료\n\n"
         Generater.extractStringsWithDB(Generater(), filedir.toPlainText())
+		
+        messagebox.showwarning("whitelist", result_massage)
 
-    def extractBtnClicked(self, filedir, signaturelist):
-
-        signaturelist.addItems(Generater.extractMalPattern(Generater(), filedir.toPlainText()))
+    def extractBtnClicked(self, filedir):
+        result_massage = "패턴추출 완료\n\n"
+        Generater.extractMalPattern(Generater(), filedir.toPlainText)
+		
+        messagebox.showwarning("Warning!", result_massage)
 
