@@ -193,7 +193,7 @@ class Main(QMainWindow):
 
     def extractBtnClicked(self, filedir):
         result_massage = "패턴추출 완료\n\n"
-        Generater.extractMalPattern(Generater(), filedir.toPlainText)
+        Generater.extractMalPattern(Generater(), filedir.toPlainText())
 		
         messagebox.showwarning("Warning!", result_massage)
 

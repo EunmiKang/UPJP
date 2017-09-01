@@ -60,36 +60,41 @@ class Generater(object):
         print(files)
         print("[+] Get Strings...")
         for file in files:
-            command = 'strings.exe -n 3 ' + file
-            bufs = os.popen(command, 'r').read()
-            buf_arr = bufs.split(b'\n')
-            buf_arr = list(set(buf_arr))
+            # o = open(file+'_pattern.txt', 'wb')
+            command = 'strings.exe -n 3 ' + file + '>>' + file+'.txt'
+            os.system(command)
+            self.DB_Update(file+'.txt')
+            # bufs = os.popen(command, 'r').read()
+            # buf_arr = bufs.split(b'\n')
+            # buf_arr = list(set(buf_arr))
+            # for i in buf_arr: o.write(i + b'\n')
+            #
+            # with open(db, 'rb') as f:
+            #     while True:
+            #         data = f.read(0x2000000)
+            #         if not data:
+            #             for i in buf_arr: o.write(i + b'\n')
+            #             break
+            #         read_arr = data.split(b'\n')
+            #
+            #         for text in read_arr:
+            #             try:
+            #                 buf_arr.remove(text)
+            #             except ValueError:
+            #                 pass
 
+        # print("[+} Result")
+        # print(buf_arr)
+        # return buf_arr
 
-        with open(db, 'rb') as f:
-            while True:
-                data = f.read(0x2000000)
-                if not data: break
-                read_arr = data.split(b'\n')
-
-                for text in read_arr:
-                    try:
-                        buf_arr.remove(text)
-                    except ValueError:
-                        pass
-
-        print("[+} Result")
-        print(buf_arr)
-        return buf_arr
-
-    def DB_Update(self):
+    def DB_Update(self, db='GenDB.db'):
         """Removing redundency from a whitelist database
 
         """
         offset=0
-        o = open('GenDB.tmp', 'wb')
+        o = open(db+'.tmp', 'wb')
         while True:
-            with open('GenDB.db', 'rb') as f:
+            with open(db, 'rb') as f:
                 f.seek(offset)
                 buf = f.read(0x2000000)
                 print(buf)
@@ -102,8 +107,8 @@ class Generater(object):
             offset += len(buf)
         
         o.close()
-        os.remove('GenDB.db')
-        os.rename("GenDB.tmp", "GenDB.db")
+        os.remove(db)
+        os.rename(db+'.tmp', db)
 
 
 def getFileList(path):
